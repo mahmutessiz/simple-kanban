@@ -2,7 +2,11 @@
     "phases": {
         "setup": {
             "nixPkgs": [
-                "bun"
+                "bun",
+                "nodejs_20",
+                "python3",
+                "gcc",
+                "gnumake"
             ]
         },
         "install": {
