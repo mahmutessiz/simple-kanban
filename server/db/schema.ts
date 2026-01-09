@@ -78,6 +78,7 @@ export const task = sqliteTable('task', {
     title: text('title').notNull(),
     description: text('description'),
     image: text('image'), // Base64 encoded image
+    urgency: text('urgency').notNull().default('medium'), // low, medium, high, critical
     order: integer('order').notNull().default(0),
     createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
     updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),

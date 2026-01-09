@@ -25,6 +25,7 @@ export default defineEventHandler(async (event) => {
         const title = getField('title');
         const columnId = getField('columnId');
         const description = getField('description');
+        const urgency = getField('urgency') || 'medium';
         const file = formData.find(f => f.name === 'image');
 
         if (!columnId || !title) {
@@ -58,6 +59,7 @@ export default defineEventHandler(async (event) => {
             title: title,
             description: description || null,
             image: imageBase64,
+            urgency: urgency,
             creatorId: user ? user.id : null,
             order: newOrder,
         }).returning();

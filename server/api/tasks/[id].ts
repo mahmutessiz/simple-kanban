@@ -48,6 +48,7 @@ export default defineEventHandler(async (event) => {
         const columnId = getField('columnId');
         const description = getField('description');
         const order = getField('order');
+        const urgency = getField('urgency');
         const file = formData.find(f => f.name === 'image');
         const imageAction = getField('imageAction'); // 'keep', 'update', 'remove'
 
@@ -71,6 +72,7 @@ export default defineEventHandler(async (event) => {
                 description: description,
                 columnId: columnId,
                 order: order ? parseInt(order) : undefined,
+                urgency: urgency,
                 updatedAt: new Date(),
                 ...imageUpdate
             })

@@ -12,6 +12,7 @@ interface Task {
     creatorName?: string | null;
     creatorId?: string | null;
     image?: string | null;
+    urgency: 'low' | 'medium' | 'high' | 'critical';
     createdAt: string;
 }
 
@@ -54,7 +55,8 @@ const taskForm = ref({
     description: '',
     image: null as File | null,
     imagePreview: null as string | null,
-    imageAction: 'keep' as 'keep' | 'update' | 'remove'
+    imageAction: 'keep' as 'keep' | 'update' | 'remove',
+    urgency: 'medium' as 'low' | 'medium' | 'high' | 'critical'
 });
 
 // Drag state
@@ -129,6 +131,7 @@ const addTask = async () => {
     if (taskForm.value.image) {
         formData.append('image', taskForm.value.image);
     }
+    formData.append('urgency', taskForm.value.urgency);
     
     await $fetch('/api/tasks', {
         method: 'POST',
@@ -155,6 +158,7 @@ const updateTask = async () => {
         formData.append('image', taskForm.value.image);
     }
     formData.append('imageAction', taskForm.value.imageAction);
+    formData.append('urgency', taskForm.value.urgency);
 
     await $fetch(`/api/tasks/${editingTask.value.id}`, {
         method: 'PUT',
@@ -186,6 +190,7 @@ const openEditTaskModal = (task: Task) => {
     taskForm.value.description = task.description || '';
     taskForm.value.imagePreview = task.image || null;
     taskForm.value.imageAction = 'keep';
+    taskForm.value.urgency = task.urgency || 'medium';
     showEditTaskModal.value = true;
 };
 
@@ -195,7 +200,8 @@ const resetTaskForm = () => {
         description: '',
         image: null,
         imagePreview: null,
-        imageAction: 'keep'
+        imageAction: 'keep',
+        urgency: 'medium'
     };
 };
 
@@ -252,13 +258,21 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
     const newOrder = targetColumn?.tasks?.length || 0;
     
     // Update task's column and order
+    const formData = new FormData();
+    formData.append('title', draggedTask.value.title);
+    formData.append('columnId', targetColumnId);
+    formData.append('order', newOrder.toString());
+    formData.append('imageAction', 'keep');
+    if (draggedTask.value.description) {
+        formData.append('description', draggedTask.value.description);
+    }
+    if (draggedTask.value.urgency) {
+        formData.append('urgency', draggedTask.value.urgency);
+    }
+
     await $fetch(`/api/tasks/${draggedTask.value.id}`, {
         method: 'PUT',
-        body: {
-            ...draggedTask.value,
-            columnId: targetColumnId,
-            order: newOrder,
-        },
+        body: formData,
     });
     
     draggedTask.value = null;
@@ -358,6 +372,18 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                         
                                         <!-- Task Metadata -->
                                         <div class="flex items-center gap-2 mt-3 text-[10px] text-slate-500">
+                                            <!-- Urgency Badge -->
+                                            <span 
+                                                class="px-1.5 py-0.5 rounded uppercase font-bold text-[9px] tracking-wider"
+                                                :class="{
+                                                    'bg-red-500/20 text-red-400': task.urgency === 'critical' || task.urgency === 'high',
+                                                    'bg-orange-500/20 text-orange-400': task.urgency === 'medium',
+                                                    'bg-emerald-500/20 text-emerald-400': task.urgency === 'low'
+                                                }"
+                                            >
+                                                {{ task.urgency }}
+                                            </span>
+
                                             <div v-if="task.creatorName" class="flex items-center gap-1">
                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
@@ -497,6 +523,28 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                             />
                         </div>
 
+                        <!-- Urgency Selector -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-slate-400 mb-2">Urgency</label>
+                            <div class="grid grid-cols-4 gap-2">
+                                <button 
+                                    v-for="level in ['low', 'medium', 'high', 'critical']"
+                                    :key="level"
+                                    type="button"
+                                    @click="taskForm.urgency = level as any"
+                                    class="px-2 py-2 rounded-lg text-xs font-medium uppercase tracking-wider transition-all border"
+                                    :class="taskForm.urgency === level ? {
+                                        'low': 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400',
+                                        'medium': 'bg-orange-500/20 border-orange-500/50 text-orange-400',
+                                        'high': 'bg-red-500/20 border-red-500/50 text-red-400',
+                                        'critical': 'bg-red-600/20 border-red-600/50 text-red-500'
+                                    }[level] : 'bg-surface border-transparent text-slate-500 hover:bg-white/5'"
+                                >
+                                    {{ level }}
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="flex gap-3">
                             <button 
                                 type="button"
@@ -553,6 +601,28 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                 @change="handleFileSelect"
                                 class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20"
                             />
+                        </div>
+
+                        <!-- Urgency Selector -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-slate-400 mb-2">Urgency</label>
+                            <div class="grid grid-cols-4 gap-2">
+                                <button 
+                                    v-for="level in ['low', 'medium', 'high', 'critical']"
+                                    :key="level"
+                                    type="button"
+                                    @click="taskForm.urgency = level as any"
+                                    class="px-2 py-2 rounded-lg text-xs font-medium uppercase tracking-wider transition-all border"
+                                    :class="taskForm.urgency === level ? {
+                                        'low': 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400',
+                                        'medium': 'bg-orange-500/20 border-orange-500/50 text-orange-400',
+                                        'high': 'bg-red-500/20 border-red-500/50 text-red-400',
+                                        'critical': 'bg-red-600/20 border-red-600/50 text-red-500'
+                                    }[level] : 'bg-surface border-transparent text-slate-500 hover:bg-white/5'"
+                                >
+                                    {{ level }}
+                                </button>
+                            </div>
                         </div>
 
                         <div class="flex gap-3">

@@ -42,6 +42,7 @@ export default defineEventHandler(async (event) => {
                         title: task.title,
                         description: task.description,
                         image: task.image,
+                        urgency: task.urgency,
                         order: task.order,
                         createdAt: task.createdAt,
                         updatedAt: task.updatedAt,
