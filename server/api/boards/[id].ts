@@ -1,5 +1,5 @@
 import { db } from '../../db';
-import { board, column, task } from '../../db/schema';
+import { board, column, task, user } from '../../db/schema';
 import { eq, asc } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
@@ -35,8 +35,20 @@ export default defineEventHandler(async (event) => {
         const columnsWithTasks = await Promise.all(
             columns.map(async (col) => {
                 const tasks = await db
-                    .select()
+                    .select({
+                        id: task.id,
+                        columnId: task.columnId,
+                        creatorId: task.creatorId,
+                        title: task.title,
+                        description: task.description,
+                        image: task.image,
+                        order: task.order,
+                        createdAt: task.createdAt,
+                        updatedAt: task.updatedAt,
+                        creatorName: user.name,
+                    })
                     .from(task)
+                    .leftJoin(user, eq(task.creatorId, user.id))
                     .where(eq(task.columnId, col.id))
                     .orderBy(asc(task.order));
                 return { ...col, tasks };

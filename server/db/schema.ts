@@ -74,8 +74,10 @@ export const column = sqliteTable('column', {
 export const task = sqliteTable('task', {
     id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
     columnId: text('column_id').notNull().references(() => column.id, { onDelete: 'cascade' }),
+    creatorId: text('creator_id').references(() => user.id, { onDelete: 'set null' }),
     title: text('title').notNull(),
     description: text('description'),
+    image: text('image'), // Base64 encoded image
     order: integer('order').notNull().default(0),
     createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
     updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),

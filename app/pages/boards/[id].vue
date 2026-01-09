@@ -9,6 +9,9 @@ interface Task {
     description: string | null;
     columnId: string;
     order: number;
+    creatorName?: string | null;
+    image?: string | null;
+    createdAt: string;
 }
 
 interface Column {
@@ -29,14 +32,31 @@ const { data: board, refresh: refreshBoard } = await useFetch<BoardDetail>(`/api
 // State for modals
 const showAddColumnModal = ref(false);
 const showAddTaskModal = ref(false);
+const showEditTaskModal = ref(false);
 const activeColumnId = ref<string | null>(null);
+const editingTask = ref<Task | null>(null);
+
+// Form state
 const newColumnName = ref('');
-const newTaskTitle = ref('');
-const newTaskDescription = ref('');
+const taskForm = ref({
+    title: '',
+    description: '',
+    image: null as File | null,
+    imagePreview: null as string | null,
+    imageAction: 'keep' as 'keep' | 'update' | 'remove'
+});
 
 // Drag state
 const draggedTask = ref<any>(null);
 const dragOverColumnId = ref<string | null>(null);
+
+// Date formatter
+const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+    });
+};
 
 // Column operations
 const addColumn = async () => {
@@ -62,34 +82,110 @@ const deleteColumn = async (columnId: string) => {
     await refreshBoard();
 };
 
+// File handling
+const handleFileSelect = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        taskForm.value.image = file;
+        taskForm.value.imageAction = 'update';
+        
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            taskForm.value.imagePreview = e.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+const removeImage = () => {
+    taskForm.value.image = null;
+    taskForm.value.imagePreview = null;
+    taskForm.value.imageAction = 'remove';
+};
+
 // Task operations
 const addTask = async () => {
-    if (!newTaskTitle.value.trim() || !activeColumnId.value) return;
+    if (!taskForm.value.title.trim() || !activeColumnId.value) return;
+    
+    const formData = new FormData();
+    formData.append('columnId', activeColumnId.value);
+    formData.append('title', taskForm.value.title);
+    if (taskForm.value.description) {
+        formData.append('description', taskForm.value.description);
+    }
+    if (taskForm.value.image) {
+        formData.append('image', taskForm.value.image);
+    }
     
     await $fetch('/api/tasks', {
         method: 'POST',
-        body: {
-            columnId: activeColumnId.value,
-            title: newTaskTitle.value,
-            description: newTaskDescription.value,
-        },
+        body: formData,
     });
     
-    newTaskTitle.value = '';
-    newTaskDescription.value = '';
+    resetTaskForm();
     showAddTaskModal.value = false;
     activeColumnId.value = null;
     await refreshBoard();
 };
 
+const updateTask = async () => {
+    if (!editingTask.value || !taskForm.value.title.trim()) return;
+
+    const formData = new FormData();
+    formData.append('columnId', editingTask.value.columnId); // Keep column
+    formData.append('title', taskForm.value.title);
+    formData.append('order', editingTask.value.order.toString());
+    if (taskForm.value.description) {
+        formData.append('description', taskForm.value.description);
+    }
+    if (taskForm.value.image) {
+        formData.append('image', taskForm.value.image);
+    }
+    formData.append('imageAction', taskForm.value.imageAction);
+
+    await $fetch(`/api/tasks/${editingTask.value.id}`, {
+        method: 'PUT',
+        body: formData,
+    });
+
+    resetTaskForm();
+    showEditTaskModal.value = false;
+    editingTask.value = null;
+    await refreshBoard();
+};
+
 const deleteTask = async (taskId: string) => {
+    if (!confirm('Delete this task?')) return;
     await $fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
     await refreshBoard();
 };
 
 const openAddTaskModal = (columnId: string) => {
+    resetTaskForm();
     activeColumnId.value = columnId;
     showAddTaskModal.value = true;
+};
+
+const openEditTaskModal = (task: Task) => {
+    resetTaskForm();
+    editingTask.value = task;
+    taskForm.value.title = task.title;
+    taskForm.value.description = task.description || '';
+    taskForm.value.imagePreview = task.image || null;
+    taskForm.value.imageAction = 'keep';
+    showEditTaskModal.value = true;
+};
+
+const resetTaskForm = () => {
+    taskForm.value = {
+        title: '',
+        description: '',
+        image: null,
+        imagePreview: null,
+        imageAction: 'keep'
+    };
 };
 
 // Native HTML5 Drag and Drop
@@ -223,21 +319,52 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                 @dragend="handleDragEnd"
                                 class="group bg-surface-active border border-dim rounded-xl p-4 cursor-grab active:cursor-grabbing hover:border-text-muted hover:bg-surface-hover transition-all duration-200"
                             >
+                                <!-- Task Image -->
+                                <div v-if="task.image" class="mb-3 rounded-lg overflow-hidden h-32 w-full">
+                                    <img :src="task.image" alt="Task attachment" class="w-full h-full object-cover" />
+                                </div>
+
                                 <div class="flex items-start justify-between gap-2">
                                     <div class="flex-1">
                                         <h4 class="font-medium text-white text-sm">{{ task.title }}</h4>
                                         <p v-if="task.description" class="text-slate-400 text-xs mt-1 line-clamp-2">
                                             {{ task.description }}
                                         </p>
+                                        
+                                        <!-- Task Metadata -->
+                                        <div class="flex items-center gap-2 mt-3 text-[10px] text-slate-500">
+                                            <div v-if="task.creatorName" class="flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                                </svg>
+                                                <span>{{ task.creatorName }}</span>
+                                            </div>
+                                            <div class="flex items-center gap-1 ml-auto">
+                                                <span>{{ formatDate(task.createdAt) }}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <button 
-                                        @click="deleteTask(task.id)"
-                                        class="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded transition-all"
-                                    >
-                                        <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                        </svg>
-                                    </button>
+                                    
+                                    <div class="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                                        <button 
+                                            @click="openEditTaskModal(task)"
+                                            class="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white"
+                                            title="Edit task"
+                                        >
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                            </svg>
+                                        </button>
+                                        <button 
+                                            @click="deleteTask(task.id)"
+                                            class="p-1 hover:bg-red-500/20 rounded text-red-400"
+                                            title="Delete task"
+                                        >
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -313,18 +440,36 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                     <h3 class="text-xl font-bold text-white mb-4">Add Task</h3>
                     <form @submit.prevent="addTask">
                         <input 
-                            v-model="newTaskTitle"
+                            v-model="taskForm.title"
                             type="text"
                             placeholder="Task title"
                             class="w-full px-4 py-3 glass-input rounded-xl focus:ring-2 focus:ring-white/20 mb-4"
                             autofocus
                         />
                         <textarea 
-                            v-model="newTaskDescription"
+                            v-model="taskForm.description"
                             placeholder="Description (optional)"
                             rows="3"
                             class="w-full px-4 py-3 glass-input rounded-xl focus:ring-2 focus:ring-white/20 mb-4 resize-none"
                         ></textarea>
+                        
+                        <!-- Image Upload -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-slate-400 mb-2">Attachment</label>
+                            <div v-if="taskForm.imagePreview" class="relative rounded-lg overflow-hidden mb-2 h-40 bg-black/20">
+                                <img :src="taskForm.imagePreview" class="w-full h-full object-contain" />
+                                <button type="button" @click="removeImage" class="absolute top-2 right-2 p-1 bg-black/50 rounded-full hover:bg-red-500/80 text-white">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                            <input 
+                                type="file" 
+                                accept="image/*"
+                                @change="handleFileSelect"
+                                class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20"
+                            />
+                        </div>
+
                         <div class="flex gap-3">
                             <button 
                                 type="button"
@@ -335,10 +480,68 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                             </button>
                             <button 
                                 type="submit"
-                                :disabled="!newTaskTitle.trim()"
+                                :disabled="!taskForm.title.trim()"
                                 class="flex-1 px-4 py-3 btn-primary rounded-xl transition-all disabled:opacity-50"
                             >
                                 Add Task
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </Teleport>
+
+        <!-- Edit Task Modal -->
+        <Teleport to="body">
+            <div v-if="showEditTaskModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showEditTaskModal = false"></div>
+                <div class="relative glass-panel bg-surface rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                    <h3 class="text-xl font-bold text-white mb-4">Edit Task</h3>
+                    <form @submit.prevent="updateTask">
+                        <input 
+                            v-model="taskForm.title"
+                            type="text"
+                            placeholder="Task title"
+                            class="w-full px-4 py-3 glass-input rounded-xl focus:ring-2 focus:ring-white/20 mb-4"
+                        />
+                        <textarea 
+                            v-model="taskForm.description"
+                            placeholder="Description (optional)"
+                            rows="3"
+                            class="w-full px-4 py-3 glass-input rounded-xl focus:ring-2 focus:ring-white/20 mb-4 resize-none"
+                        ></textarea>
+                        
+                        <!-- Image Upload -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-slate-400 mb-2">Attachment</label>
+                            <div v-if="taskForm.imagePreview" class="relative rounded-lg overflow-hidden mb-2 h-40 bg-black/20">
+                                <img :src="taskForm.imagePreview" class="w-full h-full object-contain" />
+                                <button type="button" @click="removeImage" class="absolute top-2 right-2 p-1 bg-black/50 rounded-full hover:bg-red-500/80 text-white">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                            <input 
+                                type="file" 
+                                accept="image/*"
+                                @change="handleFileSelect"
+                                class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20"
+                            />
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button 
+                                type="button"
+                                @click="showEditTaskModal = false"
+                                class="flex-1 px-4 py-3 btn-secondary rounded-xl transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                type="submit"
+                                :disabled="!taskForm.title.trim()"
+                                class="flex-1 px-4 py-3 btn-primary rounded-xl transition-all disabled:opacity-50"
+                            >
+                                Save Changes
                             </button>
                         </div>
                     </form>
