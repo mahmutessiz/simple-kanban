@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+:root {
+    --bg-main: 0 0% 6%;
+    --bg-surface: 0 0% 10%;
+    --bg-surface-hover: 0 0% 14%;
+    --bg-surface-active: 0 0% 18%;
+
+    --border-dim: 0 0% 15%;
+    --border-med: 0 0% 25%;
+
+    --text-main: 0 0% 95%;
+    --text-muted: 0 0% 60%;
+
+    --primary: 0 0% 100%;
+    /* White accent */
+    --primary-hover: 0 0% 90%;
+}
+
+body {
+    background-color: hsl(var(--bg-main));
+    color: hsl(var(--text-main));
+}
+
+.glass-panel {
+    background-color: hsla(var(--bg-surface), 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsla(var(--border-dim), 1);
+}
+
+.glass-input {
+    background-color: hsla(var(--bg-surface-active), 0.5);
+    border: 1px solid hsla(var(--border-dim), 1);
+    color: hsl(var(--text-main));
+}
+
+.glass-input:focus {
+    border-color: hsl(var(--primary));
+    outline: none;
+}
+
+.btn-primary {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--bg-main));
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: hsl(var(--primary-hover));
+}
+
+.btn-secondary {
+    background-color: hsla(var(--bg-surface-active), 0.8);
+    color: hsl(var(--text-main));
+    border: 1px solid hsla(var(--border-dim), 1);
+}
+
+.btn-secondary:hover {
+    background-color: hsla(var(--bg-surface-hover), 1);
+    border-color: hsla(var(--border-med), 1);
+}
+
+.text-gradient {
+    background: linear-gradient(to right, #ffffff, #a3a3a3);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
