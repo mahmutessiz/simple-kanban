@@ -22,13 +22,10 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/server ./server
 
-# Install drizzle-kit for migrations
-RUN npm install -g drizzle-kit
-
 # Create data directory
 RUN mkdir -p /app/data
 
 EXPOSE 3000
 
 # Run migrations and start
-CMD ["sh", "-c", "drizzle-kit push && node .output/server/index.mjs"]
+CMD ["sh", "-c", "npx drizzle-kit push && node .output/server/index.mjs"]
