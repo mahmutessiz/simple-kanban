@@ -1,0 +1,86 @@
+{
+  "common": {
+    "loading": "Yükleniyor...",
+    "error": "Hata",
+    "email": "E-posta",
+    "password": "Şifre",
+    "cancel": "İptal",
+    "save": "Kaydet",
+    "add": "Ekle",
+    "delete": "Sil",
+    "confirmDelete": "Emin misiniz?"
+  },
+  "auth": {
+    "login": "Giriş Yap",
+    "signingIn": "Giriş yapılıyor...",
+    "signOut": "Çıkış Yap",
+    "welcomeBack": "Tekrar Hoşgeldiniz",
+    "signInSubtitle": "Kanban panonuza giriş yapın",
+    "invalidEmailPass": "Geçersiz e-posta veya şifre",
+    "errorOccurred": "Bir hata oluştu"
+  },
+  "setup": {
+    "title": "Kanban'a Hoşgeldiniz",
+    "subtitle": "Başlamak için admin hesabınızı oluşturun",
+    "fullName": "Tam Adı",
+    "confirmPassword": "Şifreyi Onayla",
+    "createAdmin": "Admin Hesabı Oluştur",
+    "creatingAccount": "Hesap Oluşturuluyor...",
+    "footer": "Bu bir kerelik kurulumdur. Yönetici siz olacaksınız.",
+    "passMismatch": "Şifreler eşleşmiyor",
+    "passTooShort": "Şifre en az 8 karakter olmalıdır"
+  },
+  "dashboard": {
+    "title": "Kanban Panosu",
+    "manageUsers": "Kullanıcıları Yönet",
+    "yourBoards": "Panolarınız",
+    "newBoard": "Yeni Pano",
+    "noBoards": "Henüz pano yok",
+    "createFirstBoard": "Başlamak için ilk panonuzu oluşturun",
+    "createBoard": "Pano Oluştur",
+    "createNewBoard": "Yeni Pano Oluştur",
+    "boardName": "Pano Adı",
+    "creating": "Oluşturuluyor...",
+    "noDescription": "Açıklama yok",
+    "created": "Oluşturulma",
+    "confirmDeleteBoard": "Bu panoyu silmek istediğinizden emin misiniz?"
+  },
+  "users": {
+    "title": "Kullanıcı Yönetimi",
+    "users": "Kullanıcılar",
+    "addUser": "Kullanıcı Ekle",
+    "addNewUser": "Yeni Kullanıcı Ekle",
+    "adding": "Ekleniyor...",
+    "noUsers": "Kullanıcı bulunamadı",
+    "fullName": "Tam Adı",
+    "role": "Rol",
+    "user": "Kullanıcı",
+    "admin": "Admin",
+    "confirmDeleteUser": "Bu kullanıcıyı silmek istediğinizden emin misiniz?"
+  },
+  "board": {
+    "addColumn": "Kolon Ekle",
+    "editColumn": "Kolonu Düzenle",
+    "deleteColumn": "Kolonu Sil",
+    "columnName": "Kolon Adı",
+    "columnNamePlaceholder": "Kolon adı (örn. Yapılacaklar, Sürüyor)",
+    "cancel": "İptal",
+    "save": "Kaydet",
+    "add": "Ekle",
+    "addTask": "Görev Ekle",
+    "editTask": "Görevi Düzenle",
+    "deleteTask": "Görevi Sil",
+    "taskTitle": "Görev Başlığı",
+    "taskDescription": "Açıklama (opsiyonel)",
+    "attachment": "Ek",
+    "urgency": "Aciliyet",
+    "confirmDeleteColumn": "Bu kolonu ve tüm görevlerini silmek istiyor musunuz?",
+    "confirmDeleteTask": "Bu görevi silmek istiyor musunuz?"
+  },
+  "urgency": {
+    "low": "Düşük",
+    "medium": "Orta",
+    "high": "Yüksek",
+    "critical": "Kritik"
+  }
+}

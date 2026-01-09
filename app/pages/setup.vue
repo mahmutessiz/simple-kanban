@@ -1,6 +1,11 @@
 <script setup lang="ts">
 const { signUp } = useAuth();
 const router = useRouter();
+const { t, locale, setLocale } = useI18n();
+
+const toggleLanguage = () => {
+    setLocale(locale.value === 'en' ? 'tr' : 'en');
+};
 
 const form = ref({
     name: '',
@@ -24,12 +29,12 @@ const handleSubmit = async () => {
     error.value = '';
     
     if (form.value.password !== form.value.confirmPassword) {
-        error.value = 'Passwords do not match';
+        error.value = t('setup.passMismatch');
         return;
     }
     
     if (form.value.password.length < 8) {
-        error.value = 'Password must be at least 8 characters';
+        error.value = t('setup.passTooShort');
         return;
     }
     
@@ -69,8 +74,17 @@ const handleSubmit = async () => {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
                     </svg>
                 </div>
-                <h1 class="text-3xl font-bold text-white mb-2">Welcome to Kanban</h1>
-                <p class="text-slate-400">Create your admin account to get started</p>
+                <!-- Language Switcher -->
+                <div class="mb-4">
+                    <button 
+                        @click="toggleLanguage"
+                        class="px-3 py-1.5 rounded-lg bg-surface border border-dim text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all uppercase"
+                    >
+                        {{ locale }}
+                    </button>
+                </div>
+                <h1 class="text-3xl font-bold text-white mb-2">{{ t('setup.title') }}</h1>
+                <p class="text-slate-400">{{ t('setup.subtitle') }}</p>
             </div>
             
             <!-- Form Card -->
@@ -83,7 +97,7 @@ const handleSubmit = async () => {
                     
                     <!-- Name Field -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-2">Full Name</label>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">{{ t('setup.fullName') }}</label>
                         <input 
                             v-model="form.name"
                             type="text" 
@@ -95,7 +109,7 @@ const handleSubmit = async () => {
                     
                     <!-- Email Field -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-2">Email</label>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">{{ t('common.email') }}</label>
                         <input 
                             v-model="form.email"
                             type="email" 
@@ -107,7 +121,7 @@ const handleSubmit = async () => {
                     
                     <!-- Password Field -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-2">Password</label>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">{{ t('common.password') }}</label>
                         <input 
                             v-model="form.password"
                             type="password" 
@@ -119,7 +133,7 @@ const handleSubmit = async () => {
                     
                     <!-- Confirm Password Field -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-2">Confirm Password</label>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">{{ t('setup.confirmPassword') }}</label>
                         <input 
                             v-model="form.confirmPassword"
                             type="password" 
@@ -140,16 +154,16 @@ const handleSubmit = async () => {
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
                             </svg>
-                            Creating Account...
+                            {{ t('setup.creatingAccount') }}
                         </span>
-                        <span v-else>Create Admin Account</span>
+                        <span v-else>{{ t('setup.createAdmin') }}</span>
                     </button>
                 </form>
             </div>
             
             <!-- Footer -->
             <p class="text-center text-slate-500 text-sm mt-6">
-                This is a one-time setup. You'll be the administrator.
+                {{ t('setup.footer') }}
             </p>
         </div>
     </div>

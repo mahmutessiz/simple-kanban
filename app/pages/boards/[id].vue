@@ -31,6 +31,11 @@ interface BoardDetail {
 // Fetch board data with explicit type
 const { data: board, refresh: refreshBoard } = await useFetch<BoardDetail>(`/api/boards/${boardId}`);
 const { session } = useAuth();
+const { t, locale, setLocale } = useI18n();
+
+const toggleLanguage = () => {
+    setLocale(locale.value === 'en' ? 'tr' : 'en');
+};
 
 // Computed permission check
 const canEdit = (task: Task) => {
@@ -111,7 +116,7 @@ const openEditColumnModal = (column: Column) => {
 };
 
 const deleteColumn = async (columnId: string) => {
-    if (!confirm('Delete this column and all its tasks?')) return;
+    if (!confirm(t('board.confirmDeleteColumn'))) return;
     
     await $fetch(`/api/columns/${columnId}`, { method: 'DELETE' });
     await refreshBoard();
@@ -194,7 +199,7 @@ const updateTask = async () => {
 };
 
 const deleteTask = async (taskId: string) => {
-    if (!confirm('Delete this task?')) return;
+    if (!confirm(t('board.confirmDeleteTask'))) return;
     await $fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
     await refreshBoard();
 };
@@ -322,6 +327,14 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                         </svg>
                     </div>
                     <h1 class="text-xl font-bold text-white">{{ board?.name }}</h1>
+                    
+                    <!-- Language Switcher -->
+                    <button 
+                        @click="toggleLanguage"
+                        class="ml-auto px-3 py-1.5 rounded-lg bg-surface border border-dim text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all uppercase"
+                    >
+                        {{ locale }}
+                    </button>
                 </div>
             </div>
         </header>
@@ -354,7 +367,7 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                     <button 
                                         @click="openEditColumnModal(column)"
                                         class="p-1.5 hover:bg-white/10 rounded-lg transition-all group"
-                                        title="Edit column"
+                                        :title="t('board.editColumn')"
                                     >
                                         <svg class="w-4 h-4 text-slate-500 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -363,6 +376,7 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                     <button 
                                         @click="deleteColumn(column.id)"
                                         class="p-1.5 hover:bg-red-500/20 rounded-lg transition-all group"
+                                        :title="t('board.deleteColumn')"
                                     >
                                         <svg class="w-4 h-4 text-slate-500 group-hover:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -413,7 +427,7 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                                     'bg-emerald-500/20 text-emerald-400': task.urgency === 'low'
                                                 }"
                                             >
-                                                {{ task.urgency }}
+                                                {{ t(`urgency.${task.urgency}`) }}
                                             </span>
 
                                             <div v-if="task.creatorName" class="flex items-center gap-1">
@@ -433,7 +447,7 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                             v-if="canEdit(task)"
                                             @click="openEditTaskModal(task)"
                                             class="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white"
-                                            title="Edit task"
+                                            :title="t('board.editTask')"
                                         >
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -443,7 +457,7 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                             v-if="canEdit(task)"
                                             @click="deleteTask(task.id)"
                                             class="p-1 hover:bg-red-500/20 rounded text-red-400"
-                                            title="Delete task"
+                                            :title="t('board.deleteTask')"
                                         >
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -462,7 +476,7 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
-                            Add Task
+                            {{ t('board.addTask') }}
                         </button>
                     </div>
                 </div>
@@ -476,7 +490,7 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
-                        Add Column
+                        {{ t('board.addColumn') }}
                     </button>
                 </div>
             </div>
@@ -487,12 +501,12 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
             <div v-if="showAddColumnModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
                 <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showAddColumnModal = false"></div>
                 <div class="relative glass-panel bg-surface rounded-2xl p-6 w-full max-w-md shadow-2xl">
-                    <h3 class="text-xl font-bold text-white mb-4">Add Column</h3>
+                    <h3 class="text-xl font-bold text-white mb-4">{{ t('board.addColumn') }}</h3>
                     <form @submit.prevent="addColumn">
                         <input 
                             v-model="newColumnName"
                             type="text"
-                            placeholder="Column name (e.g., To Do, In Progress)"
+                            :placeholder="t('board.columnNamePlaceholder')"
                             class="w-full px-4 py-3 glass-input rounded-xl focus:ring-2 focus:ring-white/20 mb-4"
                             autofocus
                         />
@@ -502,14 +516,14 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                 @click="showAddColumnModal = false"
                                 class="flex-1 px-4 py-3 btn-secondary rounded-xl transition-all"
                             >
-                                Cancel
+                                {{ t('board.cancel') }}
                             </button>
                             <button 
                                 type="submit"
                                 :disabled="!newColumnName.trim()"
                                 class="flex-1 px-4 py-3 btn-primary rounded-xl transition-all disabled:opacity-50"
                             >
-                                Add
+                                {{ t('board.add') }}
                             </button>
                         </div>
                     </form>
@@ -522,13 +536,13 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
             <div v-if="showEditColumnModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
                 <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showEditColumnModal = false"></div>
                 <div class="relative glass-panel bg-surface rounded-2xl p-6 w-full max-w-md shadow-2xl">
-                    <h3 class="text-xl font-bold text-white mb-4">Edit Column</h3>
+                    <h3 class="text-xl font-bold text-white mb-4">{{ t('board.editColumn') }}</h3>
                     <form @submit.prevent="updateColumn">
                         <input 
                             v-if="editingColumn"
                             v-model="editingColumn.name"
                             type="text"
-                            placeholder="Column name"
+                            :placeholder="t('board.columnName')"
                             class="w-full px-4 py-3 glass-input rounded-xl focus:ring-2 focus:ring-white/20 mb-4"
                             autofocus
                         />
@@ -538,14 +552,14 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                 @click="showEditColumnModal = false"
                                 class="flex-1 px-4 py-3 btn-secondary rounded-xl transition-all"
                             >
-                                Cancel
+                                {{ t('board.cancel') }}
                             </button>
                             <button 
                                 type="submit"
                                 :disabled="!editingColumn?.name.trim()"
                                 class="flex-1 px-4 py-3 btn-primary rounded-xl transition-all disabled:opacity-50"
                             >
-                                Save
+                                {{ t('board.save') }}
                             </button>
                         </div>
                     </form>
@@ -558,25 +572,25 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
             <div v-if="showAddTaskModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
                 <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showAddTaskModal = false"></div>
                 <div class="relative glass-panel bg-surface rounded-2xl p-6 w-full max-w-md shadow-2xl">
-                    <h3 class="text-xl font-bold text-white mb-4">Add Task</h3>
+                    <h3 class="text-xl font-bold text-white mb-4">{{ t('board.addTask') }}</h3>
                     <form @submit.prevent="addTask">
                         <input 
                             v-model="taskForm.title"
                             type="text"
-                            placeholder="Task title"
+                            :placeholder="t('board.taskTitle')"
                             class="w-full px-4 py-3 glass-input rounded-xl focus:ring-2 focus:ring-white/20 mb-4"
                             autofocus
                         />
                         <textarea 
                             v-model="taskForm.description"
-                            placeholder="Description (optional)"
+                            :placeholder="t('board.taskDescription')"
                             rows="3"
                             class="w-full px-4 py-3 glass-input rounded-xl focus:ring-2 focus:ring-white/20 mb-4 resize-none"
                         ></textarea>
                         
                         <!-- Image Upload -->
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-slate-400 mb-2">Attachment</label>
+                            <label class="block text-sm font-medium text-slate-400 mb-2">{{ t('board.attachment') }}</label>
                             <div v-if="taskForm.imagePreview" class="relative rounded-lg overflow-hidden mb-2 h-40 bg-black/20">
                                 <img :src="taskForm.imagePreview" class="w-full h-full object-contain" />
                                 <button type="button" @click="removeImage" class="absolute top-2 right-2 p-1 bg-black/50 rounded-full hover:bg-red-500/80 text-white">
@@ -593,7 +607,7 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
 
                         <!-- Urgency Selector -->
                         <div class="mb-6">
-                            <label class="block text-sm font-medium text-slate-400 mb-2">Urgency</label>
+                            <label class="block text-sm font-medium text-slate-400 mb-2">{{ t('board.urgency') }}</label>
                             <div class="grid grid-cols-4 gap-2">
                                 <button 
                                     v-for="level in ['low', 'medium', 'high', 'critical']"
@@ -608,7 +622,7 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                         'critical': 'bg-red-600/20 border-red-600/50 text-red-500'
                                     }[level] : 'bg-surface border-transparent text-slate-500 hover:bg-white/5'"
                                 >
-                                    {{ level }}
+                                    {{ t(`urgency.${level}`) }}
                                 </button>
                             </div>
                         </div>
@@ -619,14 +633,14 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                 @click="showAddTaskModal = false"
                                 class="flex-1 px-4 py-3 btn-secondary rounded-xl transition-all"
                             >
-                                Cancel
+                                {{ t('board.cancel') }}
                             </button>
                             <button 
                                 type="submit"
                                 :disabled="!taskForm.title.trim()"
                                 class="flex-1 px-4 py-3 btn-primary rounded-xl transition-all disabled:opacity-50"
                             >
-                                Add Task
+                                {{ t('board.addTask') }}
                             </button>
                         </div>
                     </form>
@@ -639,24 +653,24 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
             <div v-if="showEditTaskModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
                 <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showEditTaskModal = false"></div>
                 <div class="relative glass-panel bg-surface rounded-2xl p-6 w-full max-w-md shadow-2xl">
-                    <h3 class="text-xl font-bold text-white mb-4">Edit Task</h3>
+                    <h3 class="text-xl font-bold text-white mb-4">{{ t('board.editTask') }}</h3>
                     <form @submit.prevent="updateTask">
                         <input 
                             v-model="taskForm.title"
                             type="text"
-                            placeholder="Task title"
+                            :placeholder="t('board.taskTitle')"
                             class="w-full px-4 py-3 glass-input rounded-xl focus:ring-2 focus:ring-white/20 mb-4"
                         />
                         <textarea 
                             v-model="taskForm.description"
-                            placeholder="Description (optional)"
+                            :placeholder="t('board.taskDescription')"
                             rows="3"
                             class="w-full px-4 py-3 glass-input rounded-xl focus:ring-2 focus:ring-white/20 mb-4 resize-none"
                         ></textarea>
                         
                         <!-- Image Upload -->
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-slate-400 mb-2">Attachment</label>
+                            <label class="block text-sm font-medium text-slate-400 mb-2">{{ t('board.attachment') }}</label>
                             <div v-if="taskForm.imagePreview" class="relative rounded-lg overflow-hidden mb-2 h-40 bg-black/20">
                                 <img :src="taskForm.imagePreview" class="w-full h-full object-contain" />
                                 <button type="button" @click="removeImage" class="absolute top-2 right-2 p-1 bg-black/50 rounded-full hover:bg-red-500/80 text-white">
@@ -673,7 +687,7 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
 
                         <!-- Urgency Selector -->
                         <div class="mb-6">
-                            <label class="block text-sm font-medium text-slate-400 mb-2">Urgency</label>
+                            <label class="block text-sm font-medium text-slate-400 mb-2">{{ t('board.urgency') }}</label>
                             <div class="grid grid-cols-4 gap-2">
                                 <button 
                                     v-for="level in ['low', 'medium', 'high', 'critical']"
@@ -688,7 +702,7 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                         'critical': 'bg-red-600/20 border-red-600/50 text-red-500'
                                     }[level] : 'bg-surface border-transparent text-slate-500 hover:bg-white/5'"
                                 >
-                                    {{ level }}
+                                    {{ t(`urgency.${level}`) }}
                                 </button>
                             </div>
                         </div>
@@ -699,14 +713,14 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                 @click="showEditTaskModal = false"
                                 class="flex-1 px-4 py-3 btn-secondary rounded-xl transition-all"
                             >
-                                Cancel
+                                {{ t('board.cancel') }}
                             </button>
                             <button 
                                 type="submit"
                                 :disabled="!taskForm.title.trim()"
                                 class="flex-1 px-4 py-3 btn-primary rounded-xl transition-all disabled:opacity-50"
                             >
-                                Save Changes
+                                {{ t('board.save') }}
                             </button>
                         </div>
                     </form>

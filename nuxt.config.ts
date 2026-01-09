@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ['@nuxt/eslint'],
+  modules: ['@nuxt/eslint', '@nuxtjs/i18n'],
   css: ['./app/assets/css/main.css'],
   vite: {
     plugins: [tailwindcss()],
@@ -18,4 +18,14 @@ export default defineNuxtConfig({
       appUrl: 'http://localhost:3000',
     },
   },
+  i18n: {
+    vueI18n: './i18n.config.ts',
+    locales: [
+      { code: 'en', iso: 'en-US', file: 'en.json', name: 'English' },
+      { code: 'tr', iso: 'tr-TR', file: 'tr.json', name: 'Türkçe' }
+    ],
+    defaultLocale: 'en',
+    strategy: 'no_prefix',
+    langDir: 'locales',
+  }
 })

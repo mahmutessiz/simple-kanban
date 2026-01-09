@@ -1,6 +1,11 @@
 <script setup lang="ts">
 const { session, signUp } = useAuth();
 const router = useRouter();
+const { t, locale, setLocale } = useI18n();
+
+const toggleLanguage = () => {
+    setLocale(locale.value === 'en' ? 'tr' : 'en');
+};
 
 // Check if user is admin
 const isAdmin = computed(() => session.value?.data?.user?.role === 'admin');
@@ -75,14 +80,14 @@ const addUser = async () => {
         showAddModal.value = false;
         await fetchUsers();
     } catch (e: any) {
-        error.value = e.message || 'An error occurred';
+        error.value = e.message || t('auth.errorOccurred');
     } finally {
         addingUser.value = false;
     }
 };
 
 const deleteUser = async (userId: string) => {
-    if (!confirm('Are you sure you want to delete this user?')) return;
+    if (!confirm(t('users.confirmDeleteUser'))) return;
     
     await $fetch(`/api/users/${userId}`, { method: 'DELETE' });
     await fetchUsers();
@@ -103,7 +108,17 @@ const deleteUser = async (userId: string) => {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                         </svg>
                     </NuxtLink>
-                    <h1 class="text-xl font-bold text-white">User Management</h1>
+                    <h1 class="text-xl font-bold text-white">{{ t('users.title') }}</h1>
+                    
+                    <div class="ml-auto flex items-center gap-4">
+                        <!-- Language Switcher -->
+                        <button 
+                            @click="toggleLanguage"
+                            class="px-3 py-1.5 rounded-lg bg-surface border border-dim text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all uppercase"
+                        >
+                            {{ locale }}
+                        </button>
+                    </div>
                 </div>
             </div>
         </header>
@@ -111,12 +126,12 @@ const deleteUser = async (userId: string) => {
         <!-- Main Content -->
         <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex items-center justify-between mb-8">
-                <h2 class="text-2xl font-bold text-white">Users</h2>
+                <h2 class="text-2xl font-bold text-white">{{ t('users.users') }}</h2>
                 <button 
                     @click="showAddModal = true"
                     class="px-4 py-2 btn-primary rounded-xl shadow-lg transition-all"
                 >
-                    + Add User
+                    + {{ t('users.addUser') }}
                 </button>
             </div>
             
@@ -151,7 +166,7 @@ const deleteUser = async (userId: string) => {
                             class="px-3 py-1 rounded-full text-xs font-medium"
                             :class="user.role === 'admin' ? 'bg-primary text-black' : 'bg-surface-active text-slate-300 border border-dim'"
                         >
-                            {{ user.role }}
+                            {{ user.role === 'admin' ? t('users.admin') : t('users.user') }}
                         </span>
                         <button 
                             v-if="user.id !== session?.data?.user?.id"
@@ -166,7 +181,7 @@ const deleteUser = async (userId: string) => {
                 </div>
                 
                 <p v-if="!users.length" class="text-center text-slate-400 py-8">
-                    No users found
+                    {{ t('users.noUsers') }}
                 </p>
             </div>
         </main>
@@ -176,7 +191,7 @@ const deleteUser = async (userId: string) => {
             <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
                 <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showAddModal = false"></div>
                 <div class="relative glass-panel bg-surface rounded-2xl p-6 w-full max-w-md shadow-2xl">
-                    <h3 class="text-xl font-bold text-white mb-4">Add New User</h3>
+                    <h3 class="text-xl font-bold text-white mb-4">{{ t('users.addNewUser') }}</h3>
                     
                     <div v-if="error" class="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-sm">
                         {{ error }}
@@ -186,7 +201,7 @@ const deleteUser = async (userId: string) => {
                         <input 
                             v-model="newUser.name"
                             type="text"
-                            placeholder="Full name"
+                            :placeholder="t('users.fullName')"
                             class="w-full px-4 py-3 glass-input rounded-xl focus:ring-2 focus:ring-white/20"
                         />
                         <input 
@@ -205,8 +220,8 @@ const deleteUser = async (userId: string) => {
                             v-model="newUser.role"
                             class="w-full px-4 py-3 glass-input rounded-xl focus:ring-2 focus:ring-white/20 appearance-none"
                         >
-                            <option value="user" class="text-black">User</option>
-                            <option value="admin" class="text-black">Admin</option>
+                            <option value="user" class="text-black">{{ t('users.user') }}</option>
+                            <option value="admin" class="text-black">{{ t('users.admin') }}</option>
                         </select>
                         <div class="flex gap-3">
                             <button 
@@ -214,14 +229,14 @@ const deleteUser = async (userId: string) => {
                                 @click="showAddModal = false"
                                 class="flex-1 px-4 py-3 btn-secondary rounded-xl transition-all"
                             >
-                                Cancel
+                                {{ t('common.cancel') }}
                             </button>
                             <button 
                                 type="submit"
                                 :disabled="addingUser"
                                 class="flex-1 px-4 py-3 btn-primary rounded-xl transition-all disabled:opacity-50"
                             >
-                                {{ addingUser ? 'Adding...' : 'Add User' }}
+                                {{ addingUser ? t('users.adding') : t('users.addUser') }}
                             </button>
                         </div>
                     </form>

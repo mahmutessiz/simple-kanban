@@ -1,0 +1,86 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "email": "Email",
+    "password": "Password",
+    "cancel": "Cancel",
+    "save": "Save",
+    "add": "Add",
+    "delete": "Delete",
+    "confirmDelete": "Are you sure?"
+  },
+  "auth": {
+    "login": "Sign In",
+    "signingIn": "Signing in...",
+    "signOut": "Sign Out",
+    "welcomeBack": "Welcome Back",
+    "signInSubtitle": "Sign in to your Kanban board",
+    "invalidEmailPass": "Invalid email or password",
+    "errorOccurred": "An error occurred"
+  },
+  "setup": {
+    "title": "Welcome to Kanban",
+    "subtitle": "Create your admin account to get started",
+    "fullName": "Full Name",
+    "confirmPassword": "Confirm Password",
+    "createAdmin": "Create Admin Account",
+    "creatingAccount": "Creating Account...",
+    "footer": "This is a one-time setup. You'll be the administrator.",
+    "passMismatch": "Passwords do not match",
+    "passTooShort": "Password must be at least 8 characters"
+  },
+  "dashboard": {
+    "title": "Kanban Board",
+    "manageUsers": "Manage Users",
+    "yourBoards": "Your Boards",
+    "newBoard": "New Board",
+    "noBoards": "No boards yet",
+    "createFirstBoard": "Create your first board to get started",
+    "createBoard": "Create Board",
+    "createNewBoard": "Create New Board",
+    "boardName": "Board Name",
+    "creating": "Creating...",
+    "noDescription": "No description",
+    "created": "Created",
+    "confirmDeleteBoard": "Are you sure you want to delete this board?"
+  },
+  "users": {
+    "title": "User Management",
+    "users": "Users",
+    "addUser": "Add User",
+    "addNewUser": "Add New User",
+    "adding": "Adding...",
+    "noUsers": "No users found",
+    "fullName": "Full Name",
+    "role": "Role",
+    "user": "User",
+    "admin": "Admin",
+    "confirmDeleteUser": "Are you sure you want to delete this user?"
+  },
+  "board": {
+    "addColumn": "Add Column",
+    "editColumn": "Edit Column",
+    "deleteColumn": "Delete Column",
+    "columnName": "Column Name",
+    "columnNamePlaceholder": "Column name (e.g., To Do, In Progress)",
+    "cancel": "Cancel",
+    "save": "Save",
+    "add": "Add",
+    "addTask": "Add Task",
+    "editTask": "Edit Task",
+    "deleteTask": "Delete Task",
+    "taskTitle": "Task Title",
+    "taskDescription": "Description (optional)",
+    "attachment": "Attachment",
+    "urgency": "Urgency",
+    "confirmDeleteColumn": "Delete this column and all its tasks?",
+    "confirmDeleteTask": "Delete this task?"
+  },
+  "urgency": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "critical": "Critical"
+  }
+}

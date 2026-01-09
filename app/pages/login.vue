@@ -1,6 +1,11 @@
 <script setup lang="ts">
 const { signIn, session } = useAuth();
 const router = useRouter();
+const { t, locale, setLocale } = useI18n();
+
+const toggleLanguage = () => {
+    setLocale(locale.value === 'en' ? 'tr' : 'en');
+};
 
 const form = ref({
     email: '',
@@ -31,12 +36,12 @@ const handleSubmit = async () => {
         const result = await signIn(form.value.email, form.value.password);
         
         if (result.error) {
-            error.value = result.error.message || 'Invalid email or password';
+            error.value = result.error.message || t('auth.invalidEmailPass');
         } else {
             await navigateTo('/');
         }
     } catch (e: any) {
-        error.value = e.message || 'An error occurred';
+        error.value = e.message || t('auth.errorOccurred');
     } finally {
         loading.value = false;
     }
@@ -53,8 +58,17 @@ const handleSubmit = async () => {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
                     </svg>
                 </div>
-                <h1 class="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-                <p class="text-slate-400">Sign in to your Kanban board</p>
+                <!-- Language Switcher -->
+                <div class="mb-4">
+                    <button 
+                        @click="toggleLanguage"
+                        class="px-3 py-1.5 rounded-lg bg-surface border border-dim text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all uppercase"
+                    >
+                        {{ locale }}
+                    </button>
+                </div>
+                <h1 class="text-3xl font-bold text-white mb-2">{{ t('auth.welcomeBack') }}</h1>
+                <p class="text-slate-400">{{ t('auth.signInSubtitle') }}</p>
             </div>
             
             <!-- Form Card -->
@@ -67,7 +81,7 @@ const handleSubmit = async () => {
                     
                     <!-- Email Field -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-2">Email</label>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">{{ t('common.email') }}</label>
                         <input 
                             v-model="form.email"
                             type="email" 
@@ -79,7 +93,7 @@ const handleSubmit = async () => {
                     
                     <!-- Password Field -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-2">Password</label>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">{{ t('common.password') }}</label>
                         <input 
                             v-model="form.password"
                             type="password" 
@@ -100,9 +114,9 @@ const handleSubmit = async () => {
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
                             </svg>
-                            Signing in...
+                            {{ t('auth.signingIn') }}
                         </span>
-                        <span v-else>Sign In</span>
+                        <span v-else>{{ t('auth.login') }}</span>
                     </button>
                 </form>
             </div>

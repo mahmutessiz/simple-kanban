@@ -1,6 +1,11 @@
 <script setup lang="ts">
 const { session, signOut } = useAuth();
 const router = useRouter();
+const { t, locale, setLocale } = useI18n();
+
+const toggleLanguage = () => {
+    setLocale(locale.value === 'en' ? 'tr' : 'en');
+};
 
 // Define Board interface locally to fix type inference
 interface Board {
@@ -47,7 +52,7 @@ const createBoard = async () => {
 };
 
 const deleteBoard = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this board?')) return;
+    if (!confirm(t('dashboard.confirmDeleteBoard'))) return;
     
     await $fetch(`/api/boards/${id}`, { method: 'DELETE' });
     await refreshBoards();
@@ -73,23 +78,31 @@ const isAdmin = computed(() => session.value?.data?.user?.role === 'admin');
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
                             </svg>
                         </div>
-                        <h1 class="text-xl font-bold text-white">Kanban Board</h1>
+                        <h1 class="text-xl font-bold text-white">{{ t('dashboard.title') }}</h1>
                     </div>
                     
                     <div class="flex items-center gap-4">
+                        <!-- Language Switcher -->
+                        <button 
+                            @click="toggleLanguage"
+                            class="px-3 py-1.5 rounded-lg bg-surface border border-dim text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all uppercase"
+                        >
+                            {{ locale }}
+                        </button>
+
                         <NuxtLink 
                             v-if="isAdmin"
                             to="/users" 
                             class="px-4 py-2 text-sm text-slate-300 hover:text-white transition-colors"
                         >
-                            Manage Users
+                            {{ t('dashboard.manageUsers') }}
                         </NuxtLink>
                         <span class="text-slate-400 text-sm">{{ session?.data?.user?.email }}</span>
                         <button 
                             @click="handleSignOut"
                             class="px-4 py-2 text-sm btn-secondary rounded-lg transition-all"
                         >
-                            Sign Out
+                            {{ t('auth.signOut') }}
                         </button>
                     </div>
                 </div>
@@ -99,12 +112,12 @@ const isAdmin = computed(() => session.value?.data?.user?.role === 'admin');
         <!-- Main Content -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex items-center justify-between mb-8">
-                <h2 class="text-2xl font-bold text-white">Your Boards</h2>
+                <h2 class="text-2xl font-bold text-white">{{ t('dashboard.yourBoards') }}</h2>
                 <button 
                     @click="showCreateModal = true"
                     class="px-4 py-2 btn-primary rounded-xl shadow-lg transition-all"
                 >
-                    + New Board
+                    + {{ t('dashboard.newBoard') }}
                 </button>
             </div>
             
@@ -122,7 +135,7 @@ const isAdmin = computed(() => session.value?.data?.user?.role === 'admin');
                                 {{ board.name }}
                             </h3>
                             <p class="text-slate-400 text-sm">
-                                {{ board.description || 'No description' }}
+                                {{ board.description || t('dashboard.noDescription') }}
                             </p>
                         </div>
                         <button 
@@ -136,7 +149,7 @@ const isAdmin = computed(() => session.value?.data?.user?.role === 'admin');
                     </div>
                     <div class="mt-4 pt-4 border-t border-dim">
                         <span class="text-xs text-slate-500">
-                            Created {{ new Date(board.createdAt).toLocaleDateString() }}
+                            {{ t('dashboard.created') }} {{ new Date(board.createdAt).toLocaleDateString() }}
                         </span>
                     </div>
                 </NuxtLink>
@@ -149,13 +162,13 @@ const isAdmin = computed(() => session.value?.data?.user?.role === 'admin');
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
                     </svg>
                 </div>
-                <h3 class="text-xl font-semibold text-white mb-2">No boards yet</h3>
-                <p class="text-slate-400 mb-6">Create your first board to get started</p>
+                <h3 class="text-xl font-semibold text-white mb-2">{{ t('dashboard.noBoards') }}</h3>
+                <p class="text-slate-400 mb-6">{{ t('dashboard.createFirstBoard') }}</p>
                 <button 
                     @click="showCreateModal = true"
                     class="px-6 py-3 btn-primary rounded-xl shadow-lg transition-all"
                 >
-                    Create Board
+                    {{ t('dashboard.createBoard') }}
                 </button>
             </div>
         </main>
@@ -165,12 +178,12 @@ const isAdmin = computed(() => session.value?.data?.user?.role === 'admin');
             <div v-if="showCreateModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
                 <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showCreateModal = false"></div>
                 <div class="relative glass-panel bg-surface rounded-2xl p-6 w-full max-w-md shadow-2xl">
-                    <h3 class="text-xl font-bold text-white mb-4">Create New Board</h3>
+                    <h3 class="text-xl font-bold text-white mb-4">{{ t('dashboard.createNewBoard') }}</h3>
                     <form @submit.prevent="createBoard">
                         <input 
                             v-model="newBoardName"
                             type="text"
-                            placeholder="Board name"
+                            :placeholder="t('dashboard.boardName')"
                             class="w-full px-4 py-3 glass-input rounded-xl focus:ring-2 focus:ring-white/20 mb-4"
                             autofocus
                         />
@@ -180,14 +193,14 @@ const isAdmin = computed(() => session.value?.data?.user?.role === 'admin');
                                 @click="showCreateModal = false"
                                 class="flex-1 px-4 py-3 btn-secondary rounded-xl transition-all"
                             >
-                                Cancel
+                                {{ t('common.cancel') }}
                             </button>
                             <button 
                                 type="submit"
                                 :disabled="creating || !newBoardName.trim()"
                                 class="flex-1 px-4 py-3 btn-primary rounded-xl transition-all disabled:opacity-50"
                             >
-                                {{ creating ? 'Creating...' : 'Create' }}
+                                {{ creating ? t('dashboard.creating') : t('common.add') }}
                             </button>
                         </div>
                     </form>
