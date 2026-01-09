@@ -18,6 +18,16 @@ export default defineNuxtConfig({
       appUrl: 'http://localhost:3000',
     },
   },
+  nitro: {
+    esbuild: {
+      options: {
+        target: 'esnext',
+      },
+    },
+    externals: {
+      inline: ['@libsql/client', '@libsql/hrana-client', '@libsql/isomorphic-ws', 'ws'],
+    },
+  },
   i18n: {
     vueI18n: './i18n.config.ts',
     locales: [
