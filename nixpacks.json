@@ -11,7 +11,7 @@
         },
         "install": {
             "cmds": [
-                "bun install --frozen-lockfile=false"
+                "bun install"
             ]
         },
         "build": {
