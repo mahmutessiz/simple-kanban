@@ -33,8 +33,10 @@ const { data: board, refresh: refreshBoard } = await useFetch<BoardDetail>(`/api
 const showAddColumnModal = ref(false);
 const showAddTaskModal = ref(false);
 const showEditTaskModal = ref(false);
+const showImageModal = ref(false);
 const activeColumnId = ref<string | null>(null);
 const editingTask = ref<Task | null>(null);
+const selectedImageUrl = ref('');
 
 // Form state
 const newColumnName = ref('');
@@ -188,6 +190,11 @@ const resetTaskForm = () => {
     };
 };
 
+const openImageModal = (url: string) => {
+    selectedImageUrl.value = url;
+    showImageModal.value = true;
+};
+
 // Native HTML5 Drag and Drop
 const handleDragStart = (e: DragEvent, task: any) => {
     draggedTask.value = task;
@@ -320,8 +327,17 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                 class="group bg-surface-active border border-dim rounded-xl p-4 cursor-grab active:cursor-grabbing hover:border-text-muted hover:bg-surface-hover transition-all duration-200"
                             >
                                 <!-- Task Image -->
-                                <div v-if="task.image" class="mb-3 rounded-lg overflow-hidden h-32 w-full">
-                                    <img :src="task.image" alt="Task attachment" class="w-full h-full object-cover" />
+                                <div 
+                                    v-if="task.image" 
+                                    class="mb-3 rounded-lg overflow-hidden h-32 w-full cursor-zoom-in relative group/image"
+                                    @click.stop="openImageModal(task.image!)"
+                                >
+                                    <div class="absolute inset-0 bg-black/0 group-hover/image:bg-black/10 transition-colors z-10"></div>
+                                    <img 
+                                        :src="task.image" 
+                                        alt="Task attachment" 
+                                        class="w-full h-full object-cover group-hover/image:scale-105 transition-transform duration-300" 
+                                    />
                                 </div>
 
                                 <div class="flex items-start justify-between gap-2">
@@ -545,6 +561,23 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </Teleport>
+        <!-- Image Preview Modal -->
+        <Teleport to="body">
+            <div v-if="showImageModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4" @click="showImageModal = false">
+                <div class="absolute inset-0 bg-black/90 backdrop-blur-md"></div>
+                <div class="relative max-w-7xl max-h-[90vh] w-full flex items-center justify-center">
+                    <img :src="selectedImageUrl" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" />
+                    <button 
+                        @click="showImageModal = false"
+                        class="absolute top-4 right-4 p-2 bg-black/50 hover:bg-white/20 rounded-full text-white transition-all"
+                    >
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </Teleport>
