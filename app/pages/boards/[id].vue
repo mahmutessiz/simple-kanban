@@ -405,7 +405,8 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                     <img 
                                         :src="task.image" 
                                         alt="Task attachment" 
-                                        class="w-full h-full object-cover group-hover/image:scale-105 transition-transform duration-300" 
+                                        class="w-full h-full object-cover group-hover/image:scale-105 transition-transform duration-300"
+                                        draggable="false"
                                     />
                                 </div>
 
