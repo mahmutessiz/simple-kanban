@@ -1,6 +1,7 @@
 {
   "name": "simple-kanban",
   "type": "module",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "build": "nuxt build",
