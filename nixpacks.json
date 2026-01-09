@@ -17,5 +17,7 @@
             ]
         }
     },
-    "start": "bun run start"
+    "start": {
+        "cmd": "bun run start"
+    }
 }
