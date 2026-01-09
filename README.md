@@ -18,24 +18,26 @@ A professional, self-hosted Kanban board application built with **Nuxt 4**, **Dr
 - **Database**: SQLite with [Drizzle ORM](https://orm.drizzle.team/)
 - **Authentication**: [better-auth](https://www.better-auth.com/)
 - **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **Runtime**: Node.js 20+
 
 ## Getting Started
 
 ### Prerequisites
 
-- [Bun](https://bun.sh/) or Node.js 18+
+- [Node.js](https://nodejs.org/) 20+
+- [npm](https://www.npmjs.com/)
 
 ### Installation
 
 1. Clone the repository:
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/mahmutessiz/simple-kanban.git
    cd simple-kanban
    ```
 
 2. Install dependencies:
    ```bash
-   bun install
+   npm install
    ```
 
 3. Create a `.env` file:
@@ -47,20 +49,56 @@ A professional, self-hosted Kanban board application built with **Nuxt 4**, **Dr
 
 4. Generate database migrations:
    ```bash
-   bunx drizzle-kit generate
+   npx drizzle-kit generate
    ```
 
 5. Push schema to database:
    ```bash
-   bunx drizzle-kit push
+   npx drizzle-kit push
    ```
 
 6. Start the development server:
    ```bash
-   bun run dev
+   npm run dev
    ```
 
 7. Open [http://localhost:3000](http://localhost:3000) and create your admin account.
+
+## Environment Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `BETTER_AUTH_SECRET` | Secret key for session encryption | `random-string` |
+| `BETTER_AUTH_URL` | Base URL of your application | `http://localhost:3000` |
+| `DB_FILE_NAME` | SQLite connection string | `file:local.db` or `file:/app/data/kanban.db` |
+| `NITRO_HOST` | Host to listen on (required for Docker) | `0.0.0.0` |
+| `PORT` | Port to listen on | `3000` |
+
+## Deployment
+
+### Using Docker Compose (Recommended)
+
+This project includes a `Dockerfile` and `docker-compose.yml` for easy deployment with persistent storage.
+
+1. Fork this repository.
+2. In your deployment platform (e.g., **Dokploy**, **Coolify**, or a VPS):
+   - Choose **Docker Compose** as the deployment method.
+   - Set up a **Persistent Volume** for the database.
+   - Mount host path to `/app/data` in the container.
+3. Configure your Environment Variables in your hosting dashboard.
+4. Deploy.
+
+**Important**: Ensure `DB_FILE_NAME` is set to `file:/app/data/kanban.db` in production to use the persistent volume.
+
+### Manual Deployment
+
+```bash
+# Build the application
+npm run build
+
+# Start the built server
+node .output/server/index.mjs
+```
 
 ## Project Structure
 
@@ -88,6 +126,8 @@ simple-kanban/
 │   │   └── schema.ts        # Database schema
 │   └── utils/               # Server utilities
 │       └── auth.ts          # better-auth config
+├── Dockerfile               # Docker configuration
+├── docker-compose.yml       # Docker Compose configuration
 ├── drizzle/                 # Migration files
 └── docs/                    # Documentation
 ```
@@ -108,7 +148,7 @@ simple-kanban/
 
 ### First Run
 1. Navigate to the app - you'll be redirected to `/setup`
-2. Create your admin account
+2. Create your admin account (first user is always admin)
 3. Login with your credentials
 
 ### Creating Boards
@@ -124,7 +164,7 @@ simple-kanban/
 ### Managing Tasks
 1. Click "Add Task" at the bottom of any column
 2. Enter task title and optional description
-3. Drag tasks between columns to update their status
+3. Drag tasks between columns to update their status (Note: Image attachment does not hinder drag/drop)
 4. Delete tasks using the X button on hover
 
 ### User Management (Admin Only)
@@ -137,22 +177,14 @@ simple-kanban/
 
 ```bash
 # Development
-bun run dev
+npm run dev
 
 # Build for production
-bun run build
+npm run build
 
-# Preview production build
-bun run preview
-
-# Generate Drizzle migrations
-bunx drizzle-kit generate
-
-# Push schema to database
-bunx drizzle-kit push
-
-# Open Drizzle Studio
-bunx drizzle-kit studio
+# Database management
+npx drizzle-kit push
+npx drizzle-kit studio
 ```
 
 ## License
