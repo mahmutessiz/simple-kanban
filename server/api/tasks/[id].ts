@@ -1,6 +1,7 @@
 import { db } from '../../db';
 import { task } from '../../db/schema';
 import { eq } from 'drizzle-orm';
+import { auth } from '../../utils/auth';
 import sharp from 'sharp';
 
 export default defineEventHandler(async (event) => {
@@ -14,7 +15,25 @@ export default defineEventHandler(async (event) => {
         });
     }
 
+    const checkPermission = async () => {
+        const session = await auth.api.getSession({ headers: event.headers });
+        if (!session?.user) {
+            throw createError({ statusCode: 401, message: 'Unauthorized' });
+        }
+
+        const currentTask = await db.select().from(task).where(eq(task.id, id)).limit(1);
+        if (!currentTask.length) {
+            throw createError({ statusCode: 404, message: 'Task not found' });
+        }
+
+        if (session.user.role !== 'admin' && currentTask[0].creatorId !== session.user.id) {
+            throw createError({ statusCode: 403, message: 'Forbidden' });
+        }
+        return currentTask[0];
+    };
+
     if (method === 'PUT') {
+        await checkPermission();
         const formData = await readMultipartFormData(event);
         if (!formData) {
             throw createError({ statusCode: 400, message: 'Invalid form data' });
@@ -62,6 +81,7 @@ export default defineEventHandler(async (event) => {
     }
 
     if (method === 'DELETE') {
+        await checkPermission();
         await db.delete(task).where(eq(task.id, id));
         return { success: true };
     }

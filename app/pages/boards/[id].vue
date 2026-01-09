@@ -10,6 +10,7 @@ interface Task {
     columnId: string;
     order: number;
     creatorName?: string | null;
+    creatorId?: string | null;
     image?: string | null;
     createdAt: string;
 }
@@ -28,6 +29,14 @@ interface BoardDetail {
 
 // Fetch board data with explicit type
 const { data: board, refresh: refreshBoard } = await useFetch<BoardDetail>(`/api/boards/${boardId}`);
+const { session } = useAuth();
+
+// Computed permission check
+const canEdit = (task: Task) => {
+    const user = session.value?.data?.user;
+    if (!user) return false;
+    return user.role === 'admin' || user.id === task.creatorId;
+};
 
 // State for modals
 const showAddColumnModal = ref(false);
@@ -363,6 +372,7 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                     
                                     <div class="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-all">
                                         <button 
+                                            v-if="canEdit(task)"
                                             @click="openEditTaskModal(task)"
                                             class="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white"
                                             title="Edit task"
@@ -372,6 +382,7 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                             </svg>
                                         </button>
                                         <button 
+                                            v-if="canEdit(task)"
                                             @click="deleteTask(task.id)"
                                             class="p-1 hover:bg-red-500/20 rounded text-red-400"
                                             title="Delete task"
