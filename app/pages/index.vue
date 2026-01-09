@@ -60,7 +60,7 @@ const deleteBoard = async (id: string) => {
 
 const handleSignOut = async () => {
     await signOut();
-    await navigateTo('/login');
+    window.location.href = '/login';
 };
 
 const isAdmin = computed(() => session.value?.data?.user?.role === 'admin');
