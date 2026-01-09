@@ -19,13 +19,21 @@ export default defineNuxtConfig({
     },
   },
   nitro: {
+    preset: 'bun',
     esbuild: {
       options: {
         target: 'esnext',
       },
     },
-    externals: {
-      inline: ['@libsql/client', '@libsql/hrana-client', '@libsql/isomorphic-ws', 'ws'],
+    rollupConfig: {
+      external: (id: string) => {
+        // Force these packages to be bundled (not external)
+        const bundled = ['@libsql/client', '@libsql/hrana-client', '@libsql/isomorphic-ws', 'ws'];
+        if (bundled.some(pkg => id.includes(pkg))) {
+          return false;
+        }
+        return undefined; // Use default behavior for other packages
+      },
     },
   },
   i18n: {
