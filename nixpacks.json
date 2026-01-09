@@ -2,7 +2,6 @@
     "phases": {
         "setup": {
             "nixPkgs": [
-                "bun",
                 "nodejs_20",
                 "python3",
                 "gcc",
@@ -11,16 +10,16 @@
         },
         "install": {
             "cmds": [
-                "bun install"
+                "npm install"
             ]
         },
         "build": {
             "cmds": [
-                "bun run build"
+                "npm run build"
             ]
         }
     },
     "start": {
-        "cmd": "mkdir -p $(dirname $(echo $DB_FILE_NAME | sed 's/^file://')) && bun run db:push && bun run start"
+        "cmd": "mkdir -p $(dirname $(echo $DB_FILE_NAME | sed 's/^file://')) && npm run db:push && npm run start"
     }
 }
