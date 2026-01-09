@@ -45,7 +45,7 @@ const handleSubmit = async () => {
 
 <template>
     <div class="min-h-screen flex items-center justify-center p-4">
-        <div class="w-full max-w-md">
+        <div class="w-full max-w-md glass-panel py-4">
             <!-- Logo/Title -->
             <div class="text-center mb-8">
                 <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-surface border border-dim mb-4">
@@ -58,7 +58,7 @@ const handleSubmit = async () => {
             </div>
             
             <!-- Form Card -->
-            <div class="glass-panel rounded-2xl p-8 shadow-2xl">
+            <div class="rounded-2xl p-8 shadow-2xl">
                 <form @submit.prevent="handleSubmit" class="space-y-6">
                     <!-- Error Alert -->
                     <div v-if="error" class="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-red-200 text-sm">
