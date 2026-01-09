@@ -1,0 +1,19 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_FILE_NAME=file:/app/data/kanban.db
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+      - BETTER_AUTH_URL=${BETTER_AUTH_URL}
+    volumes:
+      - kanban-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  kanban-data:
+    driver: local
+
