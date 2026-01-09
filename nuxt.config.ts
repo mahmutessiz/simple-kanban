@@ -27,5 +27,12 @@ export default defineNuxtConfig({
     defaultLocale: 'en',
     strategy: 'no_prefix',
     langDir: 'locales',
+  },
+  typescript: {
+    tsConfig: {
+      compilerOptions: {
+        types: ['bun-types']
+      }
+    }
   }
 })
