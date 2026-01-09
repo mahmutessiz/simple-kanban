@@ -1,16 +1,16 @@
 # Simple Kanban Board
 
-A modern Kanban board application built with **Nuxt 4**, **Drizzle ORM**, **SQLite**, and **better-auth**.
+A professional, self-hosted Kanban board application built with **Nuxt 4**, **Drizzle ORM**, **SQLite**, and **better-auth**. Designed for efficiency with a sleek, monochromatic dark theme.
 
 ## Features
 
-- 🔐 **Admin-first setup** - First user becomes the admin
-- 👥 **User management** - Admins can add and remove users
-- 📋 **Boards** - Create multiple boards for different projects
-- 📊 **Columns** - Add customizable columns to organize tasks
-- ✅ **Tasks** - Create, edit, and delete tasks with descriptions
-- 🖱️ **Drag and Drop** - Native HTML5 drag and drop between columns
-- 🌙 **Dark Mode** - Beautiful glassmorphism dark theme
+- 🔐 **Secure Authentication** - Email/password login with automatic admin assignment
+- 👥 **User Management** - Admin interface to manage team members and roles
+- 📋 **Project Boards** - Create and manage multiple Kanban boards
+- 📊 **Dynamic Columns** - Customizable workflow columns (e.g., Todo, In Progress, Done)
+- ✅ **Task Tracking** - Detailed task management with drag-and-drop organization
+- 🖱️ **Smooth Interactions** - Native HTML5 drag and drop with fluid animations
+- 🌙 **Professional UI** - Monochromatic dark theme utilizing modern HSL color system
 
 ## Tech Stack
 
