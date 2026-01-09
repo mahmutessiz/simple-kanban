@@ -41,10 +41,12 @@ const canEdit = (task: Task) => {
 
 // State for modals
 const showAddColumnModal = ref(false);
+const showEditColumnModal = ref(false);
 const showAddTaskModal = ref(false);
 const showEditTaskModal = ref(false);
 const showImageModal = ref(false);
 const activeColumnId = ref<string | null>(null);
+const editingColumn = ref<{id: string, name: string} | null>(null);
 const editingTask = ref<Task | null>(null);
 const selectedImageUrl = ref('');
 
@@ -86,6 +88,26 @@ const addColumn = async () => {
     newColumnName.value = '';
     showAddColumnModal.value = false;
     await refreshBoard();
+};
+
+const updateColumn = async () => {
+    if (!editingColumn.value || !editingColumn.value.name.trim()) return;
+
+    await $fetch(`/api/columns/${editingColumn.value.id}`, {
+        method: 'PUT',
+        body: {
+            name: editingColumn.value.name
+        }
+    });
+
+    showEditColumnModal.value = false;
+    editingColumn.value = null;
+    await refreshBoard();
+};
+
+const openEditColumnModal = (column: Column) => {
+    editingColumn.value = { id: column.id, name: column.name };
+    showEditColumnModal.value = true;
 };
 
 const deleteColumn = async (columnId: string) => {
@@ -321,23 +343,33 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                         class="glass-panel bg-surface rounded-2xl p-4 transition-all duration-200"
                         :class="dragOverColumnId === column.id ? 'border-primary ring-1 ring-primary bg-surface-hover' : 'border-dim'"
                     >
-                        <!-- Column Header -->
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-2">
-                                <h3 class="font-semibold text-white">{{ column.name }}</h3>
-                                <span class="px-2 py-0.5 bg-white/10 rounded-full text-xs text-slate-400">
-                                    {{ column.tasks?.length || 0 }}
-                                </span>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-semibold text-white">{{ column.name }}</h3>
+                                    <span class="px-2 py-0.5 bg-white/10 rounded-full text-xs text-slate-400">
+                                        {{ column.tasks?.length || 0 }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <button 
+                                        @click="openEditColumnModal(column)"
+                                        class="p-1.5 hover:bg-white/10 rounded-lg transition-all group"
+                                        title="Edit column"
+                                    >
+                                        <svg class="w-4 h-4 text-slate-500 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                    </button>
+                                    <button 
+                                        @click="deleteColumn(column.id)"
+                                        class="p-1.5 hover:bg-red-500/20 rounded-lg transition-all group"
+                                    >
+                                        <svg class="w-4 h-4 text-slate-500 group-hover:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
-                            <button 
-                                @click="deleteColumn(column.id)"
-                                class="p-1.5 hover:bg-red-500/20 rounded-lg transition-all group"
-                            >
-                                <svg class="w-4 h-4 text-slate-500 group-hover:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                            </button>
-                        </div>
                         
                         <!-- Tasks -->
                         <div class="space-y-3 min-h-[100px]">
@@ -478,6 +510,42 @@ const handleDrop = async (e: DragEvent, targetColumnId: string) => {
                                 class="flex-1 px-4 py-3 btn-primary rounded-xl transition-all disabled:opacity-50"
                             >
                                 Add
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </Teleport>
+
+        <!-- Edit Column Modal -->
+        <Teleport to="body">
+            <div v-if="showEditColumnModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showEditColumnModal = false"></div>
+                <div class="relative glass-panel bg-surface rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                    <h3 class="text-xl font-bold text-white mb-4">Edit Column</h3>
+                    <form @submit.prevent="updateColumn">
+                        <input 
+                            v-if="editingColumn"
+                            v-model="editingColumn.name"
+                            type="text"
+                            placeholder="Column name"
+                            class="w-full px-4 py-3 glass-input rounded-xl focus:ring-2 focus:ring-white/20 mb-4"
+                            autofocus
+                        />
+                        <div class="flex gap-3">
+                            <button 
+                                type="button"
+                                @click="showEditColumnModal = false"
+                                class="flex-1 px-4 py-3 btn-secondary rounded-xl transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                type="submit"
+                                :disabled="!editingColumn?.name.trim()"
+                                class="flex-1 px-4 py-3 btn-primary rounded-xl transition-all disabled:opacity-50"
+                            >
+                                Save
                             </button>
                         </div>
                     </form>
