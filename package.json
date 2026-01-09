@@ -10,6 +10,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "start": "bun .output/server/index.mjs",
+    "db:push": "drizzle-kit push",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {

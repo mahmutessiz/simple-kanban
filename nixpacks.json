@@ -21,6 +21,6 @@
         }
     },
     "start": {
-        "cmd": "bun run start"
+        "cmd": "mkdir -p $(dirname $(echo $DB_FILE_NAME | sed 's/^file://')) && bun run db:push && bun run start"
     }
 }
