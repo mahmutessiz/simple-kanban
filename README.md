@@ -4,13 +4,13 @@ A professional, self-hosted Kanban board application built with **Nuxt 4**, **Dr
 
 ## Features
 
-- 🔐 **Secure Authentication** - Email/password login with automatic admin assignment
-- 👥 **User Management** - Admin interface to manage team members and roles
-- 📋 **Project Boards** - Create and manage multiple Kanban boards
-- 📊 **Dynamic Columns** - Customizable workflow columns (e.g., Todo, In Progress, Done)
-- ✅ **Task Tracking** - Detailed task management with drag-and-drop organization
-- 🖱️ **Smooth Interactions** - Native HTML5 drag and drop with fluid animations
-- 🌙 **Professional UI** - Monochromatic dark theme utilizing modern HSL color system
+-  **Secure Authentication** - Email/password login with automatic admin assignment
+-  **User Management** - Admin interface to manage team members and roles
+-  **Project Boards** - Create and manage multiple Kanban boards
+-  **Dynamic Columns** - Customizable workflow columns (e.g., Todo, In Progress, Done)
+-  **Task Tracking** - Detailed task management with drag-and-drop organization
+-  **Smooth Interactions** - Native HTML5 drag and drop with fluid animations
+-  **Professional UI** - Monochromatic dark theme utilizing modern HSL color system
 
 ## Tech Stack
 
